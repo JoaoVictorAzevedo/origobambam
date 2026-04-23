@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Máquina de Sorteio 3D - Simulador Físico Realista</title>
+    <meta name="description" content="Simulador 3D realista de sorteios lotéricos. Sistema com física de colisões real, motor contrarrotativo e visualização de dezenas para Mega-Sena, Lotomania e Loteria Federal.">
+    <meta name="keywords" content="simulador sorteio, sorteio 3d, mega-sena, lotomania, loteria federal, gerador de números, roleta 3d, física de loteria, sorteador online">
+    <meta name="author" content="João Azevedo">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://seusite.com.br/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://seusite.com.br/">
+    <meta property="og:title" content="Máquina de Sorteio 3D - Física Real">
+    <meta property="og:description" content="Simule sorteios com física real, motores a 500 RPM e acompanhe a entropia da queda das bolas.">
+    <meta property="og:image" content="https://seusite.com.br/banner-compartilhamento.jpg">
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3164768410842400" crossorigin="anonymous"></script>
+
+    <style>
+        /* Interface Moderna "Glassmorphism" */
+        body { margin: 0; overflow: hidden; background-color: #0b0c10; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, sans-serif; color: white; user-select: none; }
+        #canvas-container { width: 100vw; height: 100vh; position: absolute; z-index: 1; }
+        
+        #ui-panel { 
+            position: absolute; top: 20px; left: 20px; width: 300px; 
+            background: rgba(15, 18, 25, 0.65); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 16px; padding: 25px; z-index: 10; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); 
+            display: flex; flex-direction: column; max-height: calc(100vh - 40px); overflow-y: auto;
+        }
+        
+        #ui-panel::-webkit-scrollbar { width: 4px; }
+        #ui-panel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+
+        h1 { font-size: 15px; color: #fff; margin-top: 0; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.9; }
+        
+        .control-group { margin-bottom: 20px; }
+        label { display: flex; justify-content: space-between; font-size: 13px; color: #aaa; margin-bottom: 8px; }
+        
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #4facfe; cursor: pointer; margin-top: -6px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; cursor: pointer;}
+        
+        input[type=number] { 
+            width: 100%; box-sizing: border-box; padding: 10px 12px; 
+            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
+            color: white; border-radius: 8px; font-weight: 600; outline: none; transition: 0.2s; 
+        }
+        input[type=number]:focus { border-color: #4facfe; }
+        
+        .btn { 
+            display: block; width: 100%; padding: 14px; margin-bottom: 12px; 
+            border: none; border-radius: 8px; font-weight: 700; cursor: pointer; 
+            text-transform: uppercase; font-size: 13px; transition: 0.2s; letter-spacing: 1px; 
+        }
+        .btn-red { background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); color: white; }
+        .btn-green { background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); color: white; }
+        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { background: #2a2d35; color: #555; cursor: not-allowed; transform: none; filter: none; box-shadow: none; }
+        
+        .status-text { font-size: 13px; color: #4facfe; font-family: monospace; margin-top: 20px; text-align: center; font-weight: bold; }
+        
+        #barra-sorteadas {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 12px; z-index: 20; padding: 15px 25px;
+            background: rgba(15, 20, 25, 0.85); border-radius: 50px; backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15); min-height: 50px; min-width: 100px;
+            align-items: center; justify-content: center; flex-wrap: wrap; max-width: 90vw;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        
+        .bola-ui {
+            width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 900; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.4), inset 2px 2px 5px rgba(255,255,255,0.4), 0 4px 8px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* ========================================== */
+        /* ESTILOS DOS ESPAÇOS DE PUBLICIDADE         */
+        /* ========================================== */
+        .ad-container {
+            background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.3); font-size: 11px; text-transform: uppercase; overflow: hidden;
+            position: relative; z-index: 10;
+        }
+        
+        /* Slot 1: Embaixo dos controles no menu lateral esquerdo */
+        .ad-slot-sidebar { width: 100%; min-height: 250px; margin-top: 20px; flex-shrink: 0; }
+        
+        /* Slot 2: Topo central da tela (Banner Horizontal) */
+        .ad-slot-top { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 728px; height: 90px; max-width: 40vw; }
+        
+        /* Slot 3: Lateral Direita (Arranha-céu / Skyscraper) */
+        .ad-slot-right-wrapper {
+            position: absolute; top: 20px; right: 20px; z-index: 10;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 15px;
+        }
+        .ad-slot-right { width: 300px; height: 600px; /* Tamanho padrão de Half-Page Ad */ }
+        
+        #instructions { font-size: 12px; color: #666; text-align: right; pointer-events: none; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 6px;}
+
+        /* Ajuste Mobile para anúncios */
+        @media (max-width: 1024px) {
+            .ad-slot-top, .ad-slot-right-wrapper { display: none; } /* Oculta ads muito grandes em telas menores */
+            #ui-panel { width: 260px; padding: 15px; }
+            #barra-sorteadas { bottom: 15px; padding: 10px 15px; }
+            .bola-ui { width: 36px; height: 36px; font-size: 16px; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div class="ad-container ad-slot-top">
+        Banner Topo (728x90)
+    </div>
+
+    <div id="ui-panel">
+        <h1>Máquina de Sorteio 3D</h1>
+        
+        <div class="control-group">
+            <label><span>Bolas no Tambor</span></label>
+            <input type="number" id="input-qtd" min="5" max="500" value="60" placeholder="Ex: 60">
+        </div>
+
+        <div class="control-group">
+            <label><span>RPM do Motor</span> <span id="val-motor">70</span></label>
+            <input type="range" id="slider-motor" min="30" max="500" value="70">
+        </div>
+        
+        <button id="btn-abrir" class="btn btn-red">1. Abrir Alçapão</button>
+        <button id="btn-sortear" class="btn btn-green" disabled>2. Puxar Bola</button>
+        
+        <div class="status-text" id="status-display">SISTEMA PRONTO</div>
+
+        <div class="ad-container ad-slot-sidebar">
+            Anúncio Quadrado (250x250)
+        </div>
+    </div>
+
+    <div class="ad-slot-right-wrapper">
+        <div class="ad-container ad-slot-right">
+            Banner Lateral (300x600)
+        </div>
+        <div id="instructions">
+            Clique e Arraste: Girar Câmera<br>
+            Scroll: Zoom (Limitado)
+        </div>
+    </div>
+    
+    <div id="barra-sorteadas"></div>
+    <div id="canvas-container"></div>
+
+    <script>
+        // --- CONFIGURAÇÃO BÁSICA ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 32);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(5, 10, 10);
+        scene.add(dirLight);
+
+        // --- VARIÁVEIS FÍSICAS ---
+        let NUM_BOLAS = 60;
+        let velocidade_base = 70;
+        let velocidade_atual = 70;
+        let velocidade_boost = 250;
+        
+        const raio_tambor = 4.8;
+        const profundidade = 3.2;
+        const raio_bola = 0.35;
+        const min_dist_sq = Math.pow(raio_bola * 2, 2);
+        const raioTamborQuadrado = Math.pow(raio_tambor - raio_bola, 2);
+
+        const gravity = -24.0;
+        const forca_sopro = 17.0; 
+        
+        const bounce_acrilico = 0.65;
+        const bounce_borracha = 0.85;
+
+        let comportas_abertas = false, trigger_draw = false, bola_sorteada = null, bolas = [];
+        
+        const cores = {
+            1: 0xdc143c, 2: 0xffd700, 3: 0x228b22, 4: 0x8b4513, 5: 0x1e90ff,
+            6: 0xff69b4, 7: 0x1e1e1e, 8: 0xa9a9a9, 9: 0xff8c00, 0: 0xffffff
+        };
+
+        // --- GEOMETRIA DA MÁQUINA ---
+        const matAcrilico = new THREE.MeshPhongMaterial({ color: 0xaaccff, transparent: true, opacity: 0.15, side: THREE.DoubleSide, depthWrite: false });
+        const meshTambor = new THREE.Mesh(new THREE.CylinderGeometry(raio_tambor, raio_tambor, profundidade, 64), matAcrilico);
+        meshTambor.rotation.x = Math.PI / 2; scene.add(meshTambor);
+        
+        const meshTubo = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 8, 32), matAcrilico);
+        meshTubo.position.set(0, -8, 0); scene.add(meshTubo);
+        
+        const matTuboTopo = new THREE.MeshPhongMaterial({ color: 0xccccff, transparent: true, opacity: 0.1, depthWrite: false });
+        const matComporta = new THREE.MeshPhongMaterial({ color: 0xff3333, transparent: true, opacity: 0.8 });
+        const meshComporta = new THREE.Mesh(new THREE.BoxGeometry(10, 0.2, 1.5), matComporta);
+        meshComporta.position.set(0, 4.9, 0); scene.add(meshComporta);
+        
+        const geoTubo = new THREE.BoxGeometry(0.85, 12, 0.85); 
+        for(let i=0; i<10; i++) {
+            let tubo = new THREE.Mesh(geoTubo, matTuboTopo);
+            tubo.position.set(-4.5 + i * 1.0, 10.9, 0); scene.add(tubo);
+        }
+
+        const rotor_horario = new THREE.Group(), rotor_anti = new THREE.Group();
+        scene.add(rotor_horario); scene.add(rotor_anti);
+
+        const raio_centro_aleta = 4.3, raio_fisico_aleta = 0.35, z_offset = 0.7;
+        const matAletaVermelha = new THREE.MeshPhongMaterial({ color: 0xff3333, transparent: true, opacity: 0.7 });
+        const matAletaAzul = new THREE.MeshPhongMaterial({ color: 0x3355ff, transparent: true, opacity: 0.7 });
+        const geoAleta = new THREE.CylinderGeometry(raio_fisico_aleta, raio_fisico_aleta, profundidade/2 - 0.2, 16);
+        
+        for(let i=0; i<2; i++) {
+            let aleta = new THREE.Mesh(geoAleta, matAletaVermelha); aleta.rotation.x = Math.PI / 2; rotor_horario.add(aleta);
+        }
+        for(let i=0; i<2; i++) {
+            let aleta = new THREE.Mesh(geoAleta, matAletaAzul); aleta.rotation.x = Math.PI / 2; rotor_anti.add(aleta);
+        }
+
+        // --- FUNÇÕES DE BOLAS E TEXTURAS ---
+        function criarTexturaBola(numero, corHex) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128; const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#' + corHex.toString(16).padStart(6, '0'); ctx.fillRect(0, 0, 128, 128);
+            ctx.fillStyle = [2, 8, 9, 0].includes(numero % 10) ? '#000000' : '#ffffff';
+            ctx.beginPath(); ctx.arc(64, 64, 40, 0, 2 * Math.PI); ctx.fill();
+            ctx.fillStyle = [2, 8, 9, 0].includes(numero % 10) ? '#ffffff' : '#000000';
+            ctx.font = 'bold 50px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(numero.toString(), 64, 64);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function adicionarBolaBarraVisual(numero) {
+            let dezena = numero % 10;
+            let div = document.createElement('div');
+            div.className = 'bola-ui';
+            div.style.backgroundColor = '#' + cores[dezena].toString(16).padStart(6, '0');
+            div.style.color = [2, 8, 9, 0].includes(dezena) ? '#000000' : '#ffffff';
+            div.innerText = numero;
+            document.getElementById('barra-sorteadas').appendChild(div);
+        }
+
+        const geoBola = new THREE.SphereGeometry(raio_bola, 16, 16);
+
+        function gerarBolas() {
+            bolas.forEach(b => {
+                b.mesh.material.map.dispose(); b.mesh.material.dispose(); scene.remove(b.mesh);
+            });
+            bolas.length = 0;
+            comportas_abertas = false; trigger_draw = false; bola_sorteada = null;
+            meshComporta.position.set(0, 4.9, 0); 
+            
+            document.getElementById('barra-sorteadas').innerHTML = ''; 
+            document.getElementById('btn-abrir').disabled = false;
+            document.getElementById('btn-sortear').disabled = true;
+            document.getElementById('status-display').innerText = "SISTEMA PRONTO";
+
+            let alturas_colunas = new Array(10).fill(0);
+            
+            for(let i=1; i<=NUM_BOLAS; i++) {
+                let dezena = i % 10;
+                let coluna = dezena === 0 ? 9 : dezena - 1;
+                let pos_x = -4.5 + coluna * 1.0;
+                let pos_y = 5.3 + alturas_colunas[coluna] * (raio_bola * 2 + 0.05);
+                
+                let mesh = new THREE.Mesh(geoBola, new THREE.MeshLambertMaterial({ map: criarTexturaBola(i, cores[dezena]) }));
+                mesh.position.set(pos_x, pos_y, 0); scene.add(mesh);
+
+                bolas.push({ mesh: mesh, number: i, x: pos_x, y: pos_y, z: 0, vx: 0, vy: 0, vz: 0, spawn_x: pos_x, no_tambor: false, drawn: false, fora_da_cena: false });
+                alturas_colunas[coluna]++;
+            }
+        }
+
+        gerarBolas();
+
+        // --- CONTROLES E EVENTOS ---
+        document.getElementById('input-qtd').addEventListener('input', (e) => {
+            let val = parseInt(e.target.value);
+            if(val > 0 && val <= 500) {
+                NUM_BOLAS = val;
+                gerarBolas();
+            } else if (val > 500) {
+                e.target.value = 500;
+                NUM_BOLAS = 500;
+                gerarBolas();
+            }
+        });
+
+        document.getElementById('slider-motor').addEventListener('input', (e) => {
+            velocidade_base = parseInt(e.target.value);
+            document.getElementById('val-motor').innerText = velocidade_base;
+        });
+        
+        document.getElementById('btn-abrir').addEventListener('click', () => {
+            comportas_abertas = true;
+            document.getElementById('btn-abrir').disabled = true;
+            document.getElementById('btn-sortear').disabled = false;
+            document.getElementById('status-display').innerText = "MISTURANDO...";
+        });
+        
+        document.getElementById('btn-sortear').addEventListener('click', () => {
+            if(!bola_sorteada) { trigger_draw = true; document.getElementById('status-display').innerText = "CAPTURANDO BOLA..."; }
+        });
+
+        // --- MOTOR FÍSICO ---
+        let angulo_h = 0, angulo_ah = 0;
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            let dt = clock.getDelta();
+            if (dt > 0.05) dt = 0.05; 
+            
+            if (comportas_abertas && meshComporta.position.z < 4) meshComporta.position.z += 5 * dt;
+
+            velocidade_atual += (velocidade_base - velocidade_atual) * (dt * 1.5);
+            angulo_h -= (velocidade_atual * Math.PI / 180) * dt; angulo_ah += (velocidade_atual * Math.PI / 180) * dt;
+            rotor_horario.rotation.z = angulo_h; rotor_anti.rotation.z = angulo_ah;
+
+            const omega_h = -(velocidade_atual * Math.PI / 180), omega_ah = (velocidade_atual * Math.PI / 180);
+
+            for(let i=0; i<bolas.length; i++) {
+                let b = bolas[i];
+                if(b.fora_da_cena) continue;
+
+                if(b.drawn) {
+                    b.vy += (gravity * 0.15) * dt;
+                    b.vx *= 0.98; b.vz *= 0.98;
+                    b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt;
+                    
+                    let dist_xz = Math.hypot(b.x, b.z);
+                    let raio_tubo_interno = 0.6 - raio_bola; 
+                    
+                    if (dist_xz > raio_tubo_interno) {
+                        let nx = b.x / (dist_xz || 0.001), nz = b.z / (dist_xz || 0.001);
+                        b.x = nx * raio_tubo_interno; b.z = nz * raio_tubo_interno;
+                        let vel_dot = b.vx * nx + b.vz * nz;
+                        if (vel_dot > 0) {
+                            b.vx -= nx * vel_dot * 1.8;
+                            b.vz -= nz * vel_dot * 1.8;
+                        }
+                    }
+                    
+                    if(b.y < -12) {
+                        b.fora_da_cena = true; scene.remove(b.mesh); bola_sorteada = null; 
+                        adicionarBolaBarraVisual(b.number); document.getElementById('status-display').innerText = "SORTEIO EM CURSO";
+                    } else {
+                        b.mesh.position.set(b.x, b.y, b.z); b.mesh.rotation.x += b.vz * 0.1; b.mesh.rotation.z -= b.vx * 0.1;
+                    }
+                    continue;
+                }
+
+                if(!comportas_abertas && !b.no_tambor) continue;
+                b.vy += gravity * dt;
+
+                if(!b.no_tambor) {
+                    b.x = b.spawn_x; b.z = 0; b.y += b.vy * dt;
+                    if(b.y < raio_tambor - 1.5) { b.no_tambor = true; b.vx += (Math.random() - 0.5) * 4; b.vz += (Math.random() - 0.5) * 4; }
+                    b.mesh.position.set(b.x, b.y, b.z); continue;
+                }
+
+                b.vy += forca_sopro * dt;
+                b.vx += (Math.random() - 0.5) * 8.0 * dt; b.vz += (Math.random() - 0.5) * 8.0 * dt;
+                b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt;
+                
+                let limite_z = profundidade/2 - raio_bola;
+                if(b.z > limite_z) { b.z = limite_z; if(b.vz > 0) b.vz *= -bounce_acrilico; }
+                else if(b.z < -limite_z) { b.z = -limite_z; if(b.vz < 0) b.vz *= -bounce_acrilico; }
+
+                let dist_xy_sq = b.x*b.x + b.y*b.y;
+                if(dist_xy_sq > raioTamborQuadrado) {
+                    if(trigger_draw && b.y < -raio_tambor + 1.2 && Math.abs(b.x) < 0.5 && Math.abs(b.z) < 0.7 && !bola_sorteada) {
+                        b.drawn = true; bola_sorteada = b; trigger_draw = false;
+                        b.vy = -2; b.vx = (Math.random() - 0.5) * 12; b.vz = (Math.random() - 0.5) * 12;
+                        velocidade_boost = Math.max(velocidade_base + 150, 450); 
+                        velocidade_atual = velocidade_boost;
+                        document.getElementById('status-display').innerText = "BOLA " + b.number + " NO TUBO...";
+                        continue;
+                    }
+
+                    let dist_xy = Math.sqrt(dist_xy_sq);
+                    let nx = b.x / dist_xy, ny = b.y / dist_xy;
+                    b.x = nx * (raio_tambor - raio_bola); b.y = ny * (raio_tambor - raio_bola);
+                    let vel_dot = b.vx * nx + b.vy * ny;
+                    if(vel_dot > 0) { b.vx -= nx * vel_dot * (1 + bounce_acrilico); b.vy -= ny * vel_dot * (1 + bounce_acrilico); }
+                }
+
+                const min_dist_aleta = raio_bola + raio_fisico_aleta;
+                const checkAleta = (angulo, z_aleta, isVerde) => {
+                    for(let k=0; k<2; k++) {
+                        let ang_rad = angulo + k * Math.PI; if(isVerde) ang_rad += Math.PI/2;
+                        let fx = Math.cos(ang_rad) * raio_centro_aleta, fy = Math.sin(ang_rad) * raio_centro_aleta;
+                        let dx = b.x - fx, dy = b.y - fy; let dist_aleta_sq = dx*dx + dy*dy;
+                        let plano_z = isVerde ? (b.z < z_aleta + raio_fisico_aleta*2) : (b.z > z_aleta - raio_fisico_aleta*2);
+                        if(dist_aleta_sq < min_dist_aleta*min_dist_aleta && plano_z) {
+                            let dist_aleta = Math.sqrt(dist_aleta_sq) || 0.001;
+                            let nx = dx / dist_aleta, ny = dy / dist_aleta;
+                            b.x += nx * (min_dist_aleta - dist_aleta); b.y += ny * (min_dist_aleta - dist_aleta);
+                            let omega = isVerde ? omega_ah : omega_h;
+                            let v_fin_x = -omega * fy, v_fin_y = omega * fx;
+                            let rel_dot = (b.vx - v_fin_x) * nx + (b.vy - v_fin_y) * ny;
+                            if(rel_dot < 0) { b.vx -= 1.3 * rel_dot * nx; b.vy -= 1.3 * rel_dot * ny; }
+                        }
+                    }
+                };
+                checkAleta(angulo_h, z_offset, false); checkAleta(angulo_ah, -z_offset, true); 
+            }
+
+            for(let i=0; i<bolas.length; i++) {
+                let b1 = bolas[i]; if(!b1.no_tambor || b1.drawn || b1.fora_da_cena) continue;
+                for(let j=i+1; j<bolas.length; j++) {
+                    let b2 = bolas[j]; if(!b2.no_tambor || b2.drawn || b2.fora_da_cena) continue;
+                    let dx = b1.x - b2.x, dy = b1.y - b2.y, dz = b1.z - b2.z;
+                    let dist_sq = dx*dx + dy*dy + dz*dz;
+                    if(dist_sq < min_dist_sq) {
+                        let dist = Math.sqrt(dist_sq) || 0.001; let overlap = (raio_bola * 2 - dist) / 2;
+                        let nx = dx/dist, ny = dy/dist, nz = dz/dist;
+                        b1.x += nx * overlap; b1.y += ny * overlap; b1.z += nz * overlap;
+                        b2.x -= nx * overlap; b2.y -= ny * overlap; b2.z -= nz * overlap;
+                        let rvx = b1.vx - b2.vx, rvy = b1.vy - b2.vy, rvz = b1.vz - b2.vz;
+                        let vel_normal = rvx*nx + rvy*ny + rvz*nz;
+                        if(vel_normal < 0) {
+                            let impulse = -(1 + bounce_borracha) * vel_normal / 2;
+                            let ix = nx * impulse, iy = ny * impulse, iz = nz * impulse;
+                            b1.vx += ix; b1.vy += iy; b1.vz += iz; b2.vx -= ix; b2.vy -= iy; b2.vz -= iz;
+                        }
+                    }
+                }
+                let b = bolas[i]; b.mesh.position.set(b.x, b.y, b.z);
+                let speed = Math.sqrt(b.vx*b.vx + b.vy*b.vy + b.vz*b.vz);
+                if(speed > 0.1) b.mesh.rotateOnWorldAxis(new THREE.Vector3(-b.vy, b.vx, 0).normalize(), speed * dt * 0.5);
+            }
+
+            rotor_horario.children.forEach((c, index) => { c.position.set(Math.cos(angulo_h + index * Math.PI)*raio_centro_aleta, Math.sin(angulo_h + index * Math.PI)*raio_centro_aleta, z_offset); });
+            rotor_anti.children.forEach((c, index) => { c.position.set(Math.cos(angulo_ah + Math.PI/2 + index * Math.PI)*raio_centro_aleta, Math.sin(angulo_ah + Math.PI/2 + index * Math.PI)*raio_centro_aleta, -z_offset); });
+            renderer.render(scene, camera);
+        }
+
+        let isDragging = false, previousMousePosition = { x: 0, y: 0 };
+        
+        document.addEventListener('mousedown', (e) => { 
+            if(!e.target.closest('.ad-container') && !e.target.closest('#ui-panel') && !e.target.closest('#barra-sorteadas')) { 
+                isDragging = true; previousMousePosition = { x: e.offsetX, y: e.offsetY }; 
+            } 
+        });
+        
+        document.addEventListener('mouseup', () => { isDragging = false; });
+        
+        document.addEventListener('mousemove', (e) => {
+            if(isDragging) {
+                scene.rotation.y += (e.offsetX - previousMousePosition.x) * 0.01;
+                scene.rotation.x += (e.offsetY - previousMousePosition.y) * 0.01;
+                previousMousePosition = { x: e.offsetX, y: e.offsetY };
+            }
+        });
+        
+        document.addEventListener('wheel', (e) => { 
+            if(!e.target.closest('.ad-container') && !e.target.closest('#ui-panel') && !e.target.closest('#barra-sorteadas')) {
+                camera.position.z += e.deltaY * 0.05; 
+                camera.position.z = Math.max(15, Math.min(65, camera.position.z));
+            }
+        });
+        
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+
+        animate();
+    </script>
+</body>
+</html>
