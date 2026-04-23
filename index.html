@@ -2,91 +2,84 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <title>Máquina de Sorteio 3D - Simulador Físico Realista</title>
     <meta name="description" content="Simulador 3D realista de sorteios lotéricos. Sistema com física de colisões real, motor contrarrotativo e visualização de dezenas para Mega-Sena, Lotomania e Loteria Federal.">
     <meta name="keywords" content="simulador sorteio, sorteio 3d, mega-sena, lotomania, loteria federal, gerador de números, roleta 3d, física de loteria, sorteador online">
     <meta name="author" content="João Azevedo">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://seusite.com.br/">
-
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://seusite.com.br/">
-    <meta property="og:title" content="Máquina de Sorteio 3D - Física Real">
-    <meta property="og:description" content="Simule sorteios com física real, motores a 500 RPM e acompanhe a entropia da queda das bolas.">
-    <meta property="og:image" content="https://seusite.com.br/banner-compartilhamento.jpg">
+    <meta name="google-adsense-account" content="ca-pub-3164768410842400">
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3164768410842400" crossorigin="anonymous"></script>
 
-    <meta name="google-adsense-account" content="ca-pub-3164768410842400">
-
     <style>
         /* Interface Moderna "Glassmorphism" */
-        body { margin: 0; overflow: hidden; background-color: #0b0c10; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, sans-serif; color: white; user-select: none; }
+        body { margin: 0; overflow: hidden; background-color: #0b0c10; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, sans-serif; color: white; user-select: none; touch-action: none; }
         #canvas-container { width: 100vw; height: 100vh; position: absolute; z-index: 1; }
         
         #ui-panel { 
-            position: absolute; top: 20px; left: 20px; width: 300px; 
-            background: rgba(15, 18, 25, 0.65); 
+            position: absolute; top: 120px; left: 20px; width: 300px; 
+            background: rgba(15, 18, 25, 0.75); 
             border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 16px; padding: 25px; z-index: 10; 
+            border-radius: 16px; padding: 20px; z-index: 10; 
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); 
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); 
-            display: flex; flex-direction: column; max-height: calc(100vh - 40px); overflow-y: auto;
+            display: flex; flex-direction: column; max-height: calc(100vh - 140px); overflow-y: auto;
         }
         
         #ui-panel::-webkit-scrollbar { width: 4px; }
         #ui-panel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
 
-        h1 { font-size: 15px; color: #fff; margin-top: 0; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.9; }
+        h1 { font-size: 15px; color: #fff; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; text-align: center; }
         
-        .control-group { margin-bottom: 20px; }
-        label { display: flex; justify-content: space-between; font-size: 13px; color: #aaa; margin-bottom: 8px; }
+        .control-group { margin-bottom: 15px; }
+        label { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 6px; }
         
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #4facfe; cursor: pointer; margin-top: -6px; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; cursor: pointer;}
         
         input[type=number] { 
-            width: 100%; box-sizing: border-box; padding: 10px 12px; 
+            width: 100%; box-sizing: border-box; padding: 8px 12px; 
             background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
             color: white; border-radius: 8px; font-weight: 600; outline: none; transition: 0.2s; 
         }
-        input[type=number]:focus { border-color: #4facfe; }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 8px; }
+        .btn-group-row { display: flex; gap: 8px; }
         
         .btn { 
-            display: block; width: 100%; padding: 14px; margin-bottom: 12px; 
-            border: none; border-radius: 8px; font-weight: 700; cursor: pointer; 
-            text-transform: uppercase; font-size: 13px; transition: 0.2s; letter-spacing: 1px; 
+            flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; 
+            text-transform: uppercase; font-size: 12px; transition: 0.2s; letter-spacing: 0.5px; 
         }
         .btn-red { background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); color: white; }
         .btn-green { background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); color: white; }
-        .btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .btn:active { transform: translateY(0); }
-        .btn:disabled { background: #2a2d35; color: #555; cursor: not-allowed; transform: none; filter: none; box-shadow: none; }
+        .btn-blue { background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%); color: white; width: 100%; }
         
-        .status-text { font-size: 13px; color: #4facfe; font-family: monospace; margin-top: 20px; text-align: center; font-weight: bold; }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .btn:active:not(:disabled) { transform: translateY(0); }
+        .btn:disabled { background: #2a2d35; color: #555; cursor: not-allowed; }
+        
+        .status-text { font-size: 12px; color: #4facfe; font-family: monospace; margin-top: 15px; text-align: center; font-weight: bold; }
         
         #barra-sorteadas {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 12px; z-index: 20; padding: 15px 25px;
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; z-index: 20; padding: 12px 20px;
             background: rgba(15, 20, 25, 0.85); border-radius: 50px; backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.15); min-height: 50px; min-width: 100px;
+            border: 1px solid rgba(255,255,255,0.15); min-height: 40px; min-width: 100px;
             align-items: center; justify-content: center; flex-wrap: wrap; max-width: 90vw;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         
         .bola-ui {
-            width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: 900; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.4), inset 2px 2px 5px rgba(255,255,255,0.4), 0 4px 8px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.2); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 900; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.4), inset 2px 2px 4px rgba(255,255,255,0.4), 0 4px 6px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
-
         @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
         /* ========================================== */
-        /* ESTILOS DOS ESPAÇOS DE PUBLICIDADE         */
+        /* ANÚNCIOS - DESKTOP FIRST                   */
         /* ========================================== */
         .ad-container {
             background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(255, 255, 255, 0.2);
@@ -95,27 +88,36 @@
             position: relative; z-index: 10;
         }
         
-        /* Slot 1: Embaixo dos controles no menu lateral esquerdo */
-        .ad-slot-sidebar { width: 100%; min-height: 250px; margin-top: 20px; flex-shrink: 0; }
-        
-        /* Slot 2: Topo central da tela (Banner Horizontal) */
-        .ad-slot-top { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 728px; height: 90px; max-width: 40vw; }
-        
-        /* Slot 3: Lateral Direita (Arranha-céu / Skyscraper) */
-        .ad-slot-right-wrapper {
-            position: absolute; top: 20px; right: 20px; z-index: 10;
-            display: flex; flex-direction: column; align-items: flex-end; gap: 15px;
-        }
-        .ad-slot-right { width: 300px; height: 600px; /* Tamanho padrão de Half-Page Ad */ }
-        
-        #instructions { font-size: 12px; color: #666; text-align: right; pointer-events: none; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 6px;}
+        .ad-slot-top { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 728px; height: 90px; }
+        .ad-slot-sidebar { width: 100%; min-height: 250px; margin-top: 15px; flex-shrink: 0; }
+        .ad-slot-right-wrapper { position: absolute; top: 20px; right: 20px; z-index: 10; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; }
+        .ad-slot-right { width: 300px; height: 600px; }
+        #instructions { font-size: 11px; color: #888; text-align: right; pointer-events: none; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 6px;}
 
-        /* Ajuste Mobile para anúncios */
-        @media (max-width: 1024px) {
-            .ad-slot-top, .ad-slot-right-wrapper { display: none; } /* Oculta ads muito grandes em telas menores */
-            #ui-panel { width: 260px; padding: 15px; }
-            #barra-sorteadas { bottom: 15px; padding: 10px 15px; }
-            .bola-ui { width: 36px; height: 36px; font-size: 16px; }
+        /* ========================================== */
+        /* OTIMIZAÇÃO MOBILE (SMARTPHONES E TABLETS)  */
+        /* ========================================== */
+        @media (max-width: 850px) {
+            /* Anúncios Mobile */
+            .ad-slot-right-wrapper, .ad-slot-sidebar { display: none; } /* Oculta laterais pesadas */
+            .ad-slot-top { top: 0; width: 100vw; height: 50px; border-radius: 0; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); } /* Banner Top Mobile */
+            
+            /* Interface Menor e Centralizada */
+            #ui-panel {
+                top: 65px; left: 50%; transform: translateX(-50%);
+                width: 90vw; max-width: 350px; padding: 15px;
+                background: rgba(15, 18, 25, 0.85); /* Fundo um pouco mais opaco para não confundir com a máquina */
+            }
+            
+            h1 { margin-bottom: 10px; font-size: 14px; }
+            .control-group { margin-bottom: 10px; }
+            
+            /* Barras Inferiores */
+            #barra-sorteadas { bottom: 10px; padding: 8px 15px; gap: 6px; }
+            .bola-ui { width: 32px; height: 32px; font-size: 14px; }
+            
+            /* Instruções Móveis */
+            #instructions { display: none; } /* Oculta instruções no mobile, o uso por toque é intuitivo */
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -123,7 +125,7 @@
 <body>
 
     <div class="ad-container ad-slot-top">
-        Banner Topo (728x90)
+        Banner Topo (Desktop: 728x90 | Mobile: 320x50)
     </div>
 
     <div id="ui-panel">
@@ -139,19 +141,24 @@
             <input type="range" id="slider-motor" min="30" max="500" value="70">
         </div>
         
-        <button id="btn-abrir" class="btn btn-red">1. Abrir Alçapão</button>
-        <button id="btn-sortear" class="btn btn-green" disabled>2. Puxar Bola</button>
+        <div class="btn-group">
+            <div class="btn-group-row">
+                <button id="btn-abrir" class="btn btn-red">1. Alçapão</button>
+                <button id="btn-sortear" class="btn btn-green" disabled>2. Puxar</button>
+            </div>
+            <button id="btn-reset" class="btn btn-blue">3. Reiniciar Sorteio</button>
+        </div>
         
         <div class="status-text" id="status-display">SISTEMA PRONTO</div>
 
         <div class="ad-container ad-slot-sidebar">
-            Anúncio Quadrado (250x250)
+            Anúncio Lateral (250x250)
         </div>
     </div>
 
     <div class="ad-slot-right-wrapper">
         <div class="ad-container ad-slot-right">
-            Banner Lateral (300x600)
+            Banner Lateral Direito (300x600)
         </div>
         <div id="instructions">
             Clique e Arraste: Girar Câmera<br>
@@ -193,7 +200,6 @@
 
         const gravity = -24.0;
         const forca_sopro = 17.0; 
-        
         const bounce_acrilico = 0.65;
         const bounce_borracha = 0.85;
 
@@ -297,14 +303,8 @@
         // --- CONTROLES E EVENTOS ---
         document.getElementById('input-qtd').addEventListener('input', (e) => {
             let val = parseInt(e.target.value);
-            if(val > 0 && val <= 500) {
-                NUM_BOLAS = val;
-                gerarBolas();
-            } else if (val > 500) {
-                e.target.value = 500;
-                NUM_BOLAS = 500;
-                gerarBolas();
-            }
+            if(val > 0 && val <= 500) { NUM_BOLAS = val; gerarBolas(); } 
+            else if (val > 500) { e.target.value = 500; NUM_BOLAS = 500; gerarBolas(); }
         });
 
         document.getElementById('slider-motor').addEventListener('input', (e) => {
@@ -322,6 +322,9 @@
         document.getElementById('btn-sortear').addEventListener('click', () => {
             if(!bola_sorteada) { trigger_draw = true; document.getElementById('status-display').innerText = "CAPTURANDO BOLA..."; }
         });
+
+        // Botão de Reset
+        document.getElementById('btn-reset').addEventListener('click', gerarBolas);
 
         // --- MOTOR FÍSICO ---
         let angulo_h = 0, angulo_ah = 0;
@@ -356,10 +359,7 @@
                         let nx = b.x / (dist_xz || 0.001), nz = b.z / (dist_xz || 0.001);
                         b.x = nx * raio_tubo_interno; b.z = nz * raio_tubo_interno;
                         let vel_dot = b.vx * nx + b.vz * nz;
-                        if (vel_dot > 0) {
-                            b.vx -= nx * vel_dot * 1.8;
-                            b.vz -= nz * vel_dot * 1.8;
-                        }
+                        if (vel_dot > 0) { b.vx -= nx * vel_dot * 1.8; b.vz -= nz * vel_dot * 1.8; }
                     }
                     
                     if(b.y < -12) {
@@ -457,23 +457,35 @@
             renderer.render(scene, camera);
         }
 
+        // --- ISOLAMENTO DA INTERFACE, TOQUE E ZOOM ---
         let isDragging = false, previousMousePosition = { x: 0, y: 0 };
         
-        document.addEventListener('mousedown', (e) => { 
+        // Suporte a Toque (Mobile) e Mouse (Desktop)
+        const startDrag = (e) => {
             if(!e.target.closest('.ad-container') && !e.target.closest('#ui-panel') && !e.target.closest('#barra-sorteadas')) { 
-                isDragging = true; previousMousePosition = { x: e.offsetX, y: e.offsetY }; 
+                isDragging = true; 
+                let evt = e.touches ? e.touches[0] : e;
+                previousMousePosition = { x: evt.clientX, y: evt.clientY }; 
             } 
-        });
-        
-        document.addEventListener('mouseup', () => { isDragging = false; });
-        
-        document.addEventListener('mousemove', (e) => {
+        };
+        const endDrag = () => { isDragging = false; };
+        const onDrag = (e) => {
             if(isDragging) {
-                scene.rotation.y += (e.offsetX - previousMousePosition.x) * 0.01;
-                scene.rotation.x += (e.offsetY - previousMousePosition.y) * 0.01;
-                previousMousePosition = { x: e.offsetX, y: e.offsetY };
+                let evt = e.touches ? e.touches[0] : e;
+                scene.rotation.y += (evt.clientX - previousMousePosition.x) * 0.01;
+                scene.rotation.x += (evt.clientY - previousMousePosition.y) * 0.01;
+                previousMousePosition = { x: evt.clientX, y: evt.clientY };
             }
-        });
+        };
+
+        document.addEventListener('mousedown', startDrag);
+        document.addEventListener('touchstart', startDrag, {passive: false});
+        
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchend', endDrag);
+        
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('touchmove', onDrag, {passive: false});
         
         document.addEventListener('wheel', (e) => { 
             if(!e.target.closest('.ad-container') && !e.target.closest('#ui-panel') && !e.target.closest('#barra-sorteadas')) {
