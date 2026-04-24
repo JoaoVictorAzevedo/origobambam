@@ -145,11 +145,22 @@
             /* Instruções Móveis */
             #instructions { display: none; } /* Oculta instruções no mobile, o uso por toque é intuitivo */
         }
+        .logo-site {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 150px; /* Ajuste o tamanho conforme necessário */
+            opacity: 0.8; /* Um pouco transparente para não gritar na tela */
+            z-index: 10; /* Garante que fique sobre o canvas 3D */
+            pointer-events: none; /* Impede que cliques na logo interfiram no simulador */
+        }
+        
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-
+    <img src="logo-transparente.png" class="logo-site" alt="Sorteio 3D">
+    
     <div class="ad-container ad-slot-top">
         Banner Topo (Desktop: 728x90 | Mobile: 320x50)
     </div>
