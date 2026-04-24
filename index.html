@@ -45,127 +45,238 @@
         #canvas-container { width: 100vw; height: 100vh; position: absolute; z-index: 1; }
         
         #ui-panel { 
-            position: absolute; top: 120px; left: 20px; width: 300px; 
+            position: absolute; top: 180px; left: 40px; width: 320px; 
             background: rgba(15, 18, 25, 0.75); 
             border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 16px; padding: 20px; z-index: 10; 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); 
-            display: flex; flex-direction: column; max-height: calc(100vh - 140px); overflow-y: auto;
+            border-radius: 20px; padding: 24px; z-index: 10; 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            display: flex; flex-direction: column; 
+            max-height: calc(100vh - 220px); overflow-y: auto;
+            transition: 0.3s;
         }
         
-        #ui-panel::-webkit-scrollbar { width: 4px; }
-        #ui-panel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+        #ui-panel::-webkit-scrollbar { width: 5px; }
+        #ui-panel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
 
-        h1 { font-size: 15px; color: #fff; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; text-align: center; }
+        h1 { font-size: 14px; color: #fff; margin-top: 0; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; }
         
-        .control-group { margin-bottom: 15px; }
-        label { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; margin-bottom: 6px; }
+        .control-group { margin-bottom: 20px; }
+        label { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #4facfe; cursor: pointer; margin-top: -6px; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; cursor: pointer;}
+        input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; outline: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #4facfe; cursor: pointer; box-shadow: 0 0 10px rgba(79, 172, 254, 0.5); border: 2px solid white; }
         
         input[type=number] { 
-            width: 100%; box-sizing: border-box; padding: 8px 12px; 
-            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); 
-            color: white; border-radius: 8px; font-weight: 600; outline: none; transition: 0.2s; 
+            width: 100%; box-sizing: border-box; padding: 10px 14px; 
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); 
+            color: white; border-radius: 10px; font-weight: 600; outline: none; transition: 0.3s; font-size: 14px;
         }
+        input[type=number]:focus { border-color: #4facfe; box-shadow: 0 0 10px rgba(79, 172, 254, 0.2); }
         
-        .btn-group { display: flex; flex-direction: column; gap: 8px; }
-        .btn-group-row { display: flex; gap: 8px; }
+        .btn-group { display: flex; flex-direction: column; gap: 10px; }
+        .btn-group-row { display: flex; gap: 10px; }
         
         .btn { 
-            flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; 
-            text-transform: uppercase; font-size: 12px; transition: 0.2s; letter-spacing: 0.5px; 
+            flex: 1; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; 
+            text-transform: uppercase; font-size: 11px; transition: 0.3s; letter-spacing: 1px; 
         }
-        .btn-red { background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); color: white; }
-        .btn-green { background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); color: white; }
-        .btn-blue { background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%); color: white; width: 100%; }
+        .btn-red { background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); color: white; box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3); }
+        .btn-green { background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); color: white; box-shadow: 0 4px 15px rgba(0, 176, 155, 0.3); }
+        .btn-blue { background: linear-gradient(135deg, #0072ff 0%, #00c6ff 100%); color: white; width: 100%; box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3); }
         
-        .btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .btn:active:not(:disabled) { transform: translateY(0); }
-        .btn:disabled { background: #2a2d35; color: #555; cursor: not-allowed; }
+        .btn:hover:not(:disabled) { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        .btn:active:not(:disabled) { transform: translateY(-1px); }
+        .btn:disabled { background: #1e2128; color: #444; cursor: not-allowed; opacity: 0.5; box-shadow: none; }
         
-        .status-text { font-size: 12px; color: #4facfe; font-family: monospace; margin-top: 15px; text-align: center; font-weight: bold; }
+        .status-text { font-size: 11px; color: #4facfe; font-family: 'JetBrains Mono', monospace; margin-top: 20px; text-align: center; font-weight: bold; letter-spacing: 1px; opacity: 0.8; }
         
         #barra-sorteadas {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 10px; z-index: 20; padding: 12px 20px;
-            background: rgba(15, 20, 25, 0.85); border-radius: 50px; backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.15); min-height: 40px; min-width: 100px;
-            align-items: center; justify-content: center; flex-wrap: wrap; max-width: 90vw;
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 12px; z-index: 20; padding: 15px 30px;
+            background: rgba(15, 20, 25, 0.8); border-radius: 60px; backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.1); min-height: 50px; min-width: 120px;
+            align-items: center; justify-content: center; flex-wrap: wrap; max-width: 80vw;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
         
         .bola-ui {
-            width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 18px; font-weight: 900; box-shadow: inset -4px -4px 8px rgba(0,0,0,0.4), inset 2px 2px 4px rgba(255,255,255,0.4), 0 4px 6px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.2); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 900; box-shadow: inset -4px -4px 10px rgba(0,0,0,0.5), inset 2px 2px 6px rgba(255,255,255,0.4), 0 6px 12px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.15); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
-        @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes popIn { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
 
         /* ========================================== */
         /* ANÚNCIOS - DESKTOP FIRST                   */
         /* ========================================== */
         .ad-container {
-            background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 8px; display: flex; align-items: center; justify-content: center;
-            color: rgba(255,255,255,0.3); font-size: 11px; text-transform: uppercase; overflow: hidden;
-            position: relative; z-index: 10;
+            background: rgba(0, 0, 0, 0.2); border: 1px dashed rgba(255, 255, 255, 0.05);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.15); font-size: 10px; text-transform: uppercase; overflow: hidden;
+            position: relative; z-index: 10; transition: 0.3s;
         }
+        .ad-container:hover { background: rgba(0, 0, 0, 0.3); border-color: rgba(255, 255, 255, 0.1); }
         
-        .ad-slot-top { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 728px; height: 90px; }
-        .ad-slot-sidebar { width: 100%; min-height: 250px; margin-top: 15px; flex-shrink: 0; }
-        .ad-slot-right-wrapper { position: absolute; top: 20px; right: 20px; z-index: 10; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; }
-        .ad-slot-right { width: 300px; height: 600px; }
-        #instructions { font-size: 11px; color: #888; text-align: right; pointer-events: none; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 6px;}
+        .ad-slot-top { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 728px; height: 90px; }
+        .ad-slot-sidebar { width: 100%; min-height: 250px; margin-top: 20px; flex-shrink: 0; }
+        .ad-slot-right-wrapper { 
+            position: absolute; top: 40px; right: 40px; z-index: 10; 
+            display: flex; flex-direction: column; align-items: flex-end; gap: 20px; 
+            max-height: calc(100vh - 80px);
+        }
+        .ad-slot-right { width: 300px; height: 600px; flex-shrink: 0; }
+        #instructions { font-size: 10px; color: #666; text-align: right; pointer-events: none; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 10px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05);}
+
 
         /* ========================================== */
         /* OTIMIZAÇÃO MOBILE (SMARTPHONES E TABLETS)  */
         /* ========================================== */
+        #ui-toggle-btn { display: none; }
+        #btn-sortear-mobile { display: none; }
+        .mobile-header { display: none; }
+
+
+
         @media (max-width: 850px) {
             /* Anúncios Mobile */
-            .ad-slot-right-wrapper, .ad-slot-sidebar { display: none; } /* Oculta laterais pesadas */
-            .ad-slot-top { top: 0; width: 100vw; height: 50px; border-radius: 0; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); } /* Banner Top Mobile */
+            .ad-slot-right-wrapper, .ad-slot-sidebar { display: none; }
+            .ad-slot-top { top: 0; width: 100vw; height: 50px; border-radius: 0; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
             
-            /* Interface Menor e Centralizada */
+            /* Interface Mobile Premium (Colapsável) */
             #ui-panel {
-                top: 65px; left: 50%; transform: translateX(-50%);
+                top: 70px; left: 50%;
+                transform: translateX(-50%) translateY(20px);
                 width: 90vw; max-width: 350px; padding: 15px;
-                background: rgba(15, 18, 25, 0.85); /* Fundo um pouco mais opaco para não confundir com a máquina */
+                background: rgba(15, 18, 25, 0.95);
+                transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+                z-index: 200;
             }
             
+            #ui-panel.collapsed {
+                transform: translateX(-50%) translateY(-500px);
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            /* Botão de Toggle Mobile (Agora na parte de baixo) */
+            #ui-toggle-btn {
+                display: flex;
+                position: absolute;
+                bottom: 145px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 100;
+                background: rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                color: rgba(255, 255, 255, 0.7);
+                padding: 10px 20px;
+                border-radius: 50px;
+                font-size: 13px;
+                font-weight: bold;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            }
+            
+            #ui-panel:not(.collapsed) ~ #ui-toggle-btn {
+                bottom: unset;
+                top: 80px;
+                right: 20px;
+                left: unset;
+                transform: none;
+                background: rgba(255, 0, 0, 0.2);
+                border-color: rgba(255, 0, 0, 0.3);
+                color: white;
+                padding: 8px;
+            }
+            
+            #ui-panel:not(.collapsed) ~ #ui-toggle-btn span:first-child { display: none; }
+            #ui-panel:not(.collapsed) ~ #ui-toggle-btn .arrow { transform: rotate(180deg); font-size: 16px; margin: 0; }
+
+
             h1 { margin-bottom: 10px; font-size: 14px; }
             .control-group { margin-bottom: 10px; }
             
             /* Barras Inferiores */
             #barra-sorteadas { bottom: 10px; padding: 8px 15px; gap: 6px; }
             .bola-ui { width: 32px; height: 32px; font-size: 14px; }
+
+            /* Botão Puxar Mobile */
+            #btn-sortear-mobile {
+                display: block;
+                position: absolute;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90vw;
+                max-width: 350px;
+                z-index: 90;
+                padding: 16px;
+                border-radius: 12px;
+                font-size: 16px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            }
+
+            #ui-panel:not(.collapsed) ~ #btn-sortear-mobile {
+                display: none; /* Esconde para não poluir quando o menu está aberto */
+            }
+
             
-            /* Instruções Móveis */
-            #instructions { display: none; } /* Oculta instruções no mobile, o uso por toque é intuitivo */
+            /* Logo e Header no Mobile */
+            .mobile-header {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                top: 0; left: 0; width: 100%;
+                height: 55px;
+                background-color: #0b1c2e; /* Azul Marinho */
+                border-bottom: 2px solid #d4af37; /* Fita Dourada */
+                box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+                z-index: 500;
+            }
+            .mobile-header img { height: 35px; width: auto; object-fit: contain; }
+            .logo-site { display: none; }
+            .ad-slot-top { top: 55px; height: 50px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+            #ui-panel { top: 110px; }
+
+
+            #instructions { display: none; }
         }
+        
         .logo-site {
             position: absolute;
-            top: 50px; /* Deixa espaço para o anúncio do topo no mobile */
-            left: 20px;
-            width: 140px; /* Tamanho discreto para não brigar com o painel */
-            opacity: 0.9;
-            z-index: 100; /* Garante que fique acima de tudo, inclusive do painel e anúncios */
-            pointer-events: none; /* Crucial: cliques na logo passam direto para o simulador */
+            top: 40px;
+            left: 40px;
+            width: 160px;
+            opacity: 1;
+            z-index: 100;
+            pointer-events: none;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
         }
+
+
         
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
+    <div class="mobile-header">
+        <img src="logo-transparente.png" alt="Sorteio 3D">
+    </div>
     <img src="logo-transparente.png" class="logo-site" alt="Sorteio 3D">
+
     
     <div class="ad-container ad-slot-top">
         Banner Topo (Desktop: 728x90 | Mobile: 320x50)
     </div>
 
-    <div id="ui-panel">
+    <div id="ui-panel" class="collapsed">
+
         <h1>Máquina de Sorteio 3D</h1>
         
         <div class="control-group">
@@ -204,7 +315,14 @@
     </div>
     
     <div id="barra-sorteadas"></div>
+    <div id="btn-sortear-mobile" class="btn btn-green" disabled>SORTEAR BOLA 🎲</div>
+    <div id="ui-toggle-btn">
+
+        <span>⚙️ Configure o Sorteio</span>
+        <span class="arrow">▶</span>
+    </div>
     <div id="canvas-container"></div>
+
 
     <script>
         // --- CONFIGURAÇÃO BÁSICA ---
@@ -212,10 +330,17 @@
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 0, 32);
         
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        // Otimização de Performance: Detectar mobile para reduzir carga
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const renderer = new THREE.WebGLRenderer({ 
+            antialias: !isMobile, // Desabilita anti-alias no mobile para ganhar FPS
+            alpha: true, 
+            powerPreference: "high-performance" 
+        });
+        renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5)); // Reduz pixelRatio para performance
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
+
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
@@ -304,7 +429,9 @@
             document.getElementById('barra-sorteadas').appendChild(div);
         }
 
-        const geoBola = new THREE.SphereGeometry(raio_bola, 16, 16);
+        // Otimização: Reduzindo segmentos da geometria (16 -> 12)
+        const geoBola = new THREE.SphereGeometry(raio_bola, 12, 12);
+
 
         function gerarBolas() {
             bolas.forEach(b => {
@@ -317,7 +444,9 @@
             document.getElementById('barra-sorteadas').innerHTML = ''; 
             document.getElementById('btn-abrir').disabled = false;
             document.getElementById('btn-sortear').disabled = true;
+            document.getElementById('btn-sortear-mobile').disabled = true;
             document.getElementById('status-display').innerText = "SISTEMA PRONTO";
+
 
             let alturas_colunas = new Array(10).fill(0);
             
@@ -353,7 +482,9 @@
             comportas_abertas = true;
             document.getElementById('btn-abrir').disabled = true;
             document.getElementById('btn-sortear').disabled = false;
+            document.getElementById('btn-sortear-mobile').disabled = false;
             document.getElementById('status-display').innerText = "MISTURANDO...";
+
         });
         
         document.getElementById('btn-sortear').addEventListener('click', () => {
@@ -363,15 +494,13 @@
         // Botão de Reset
         document.getElementById('btn-reset').addEventListener('click', gerarBolas);
 
-        // --- MOTOR FÍSICO ---
+        // --- MOTOR E LÓGICA DE FÍSICA ---
         let angulo_h = 0, angulo_ah = 0;
         const clock = new THREE.Clock();
+        const physicsStep = 1/60; // 60Hz para estabilidade
+        let accumulator = 0;
 
-        function animate() {
-            requestAnimationFrame(animate);
-            let dt = clock.getDelta();
-            if (dt > 0.05) dt = 0.05; 
-            
+        function updatePhysics(dt) {
             if (comportas_abertas && meshComporta.position.z < 4) meshComporta.position.z += 5 * dt;
 
             velocidade_atual += (velocidade_base - velocidade_atual) * (dt * 1.5);
@@ -402,8 +531,6 @@
                     if(b.y < -12) {
                         b.fora_da_cena = true; scene.remove(b.mesh); bola_sorteada = null; 
                         adicionarBolaBarraVisual(b.number); document.getElementById('status-display').innerText = "SORTEIO EM CURSO";
-                    } else {
-                        b.mesh.position.set(b.x, b.y, b.z); b.mesh.rotation.x += b.vz * 0.1; b.mesh.rotation.z -= b.vx * 0.1;
                     }
                     continue;
                 }
@@ -414,7 +541,7 @@
                 if(!b.no_tambor) {
                     b.x = b.spawn_x; b.z = 0; b.y += b.vy * dt;
                     if(b.y < raio_tambor - 1.5) { b.no_tambor = true; b.vx += (Math.random() - 0.5) * 4; b.vz += (Math.random() - 0.5) * 4; }
-                    b.mesh.position.set(b.x, b.y, b.z); continue;
+                    continue;
                 }
 
                 b.vy += forca_sopro * dt;
@@ -444,24 +571,26 @@
                 }
 
                 const min_dist_aleta = raio_bola + raio_fisico_aleta;
-                const checkAleta = (angulo, z_aleta, isVerde) => {
-                    for(let k=0; k<2; k++) {
-                        let ang_rad = angulo + k * Math.PI; if(isVerde) ang_rad += Math.PI/2;
-                        let fx = Math.cos(ang_rad) * raio_centro_aleta, fy = Math.sin(ang_rad) * raio_centro_aleta;
-                        let dx = b.x - fx, dy = b.y - fy; let dist_aleta_sq = dx*dx + dy*dy;
-                        let plano_z = isVerde ? (b.z < z_aleta + raio_fisico_aleta*2) : (b.z > z_aleta - raio_fisico_aleta*2);
-                        if(dist_aleta_sq < min_dist_aleta*min_dist_aleta && plano_z) {
-                            let dist_aleta = Math.sqrt(dist_aleta_sq) || 0.001;
-                            let nx = dx / dist_aleta, ny = dy / dist_aleta;
-                            b.x += nx * (min_dist_aleta - dist_aleta); b.y += ny * (min_dist_aleta - dist_aleta);
-                            let omega = isVerde ? omega_ah : omega_h;
-                            let v_fin_x = -omega * fy, v_fin_y = omega * fx;
-                            let rel_dot = (b.vx - v_fin_x) * nx + (b.vy - v_fin_y) * ny;
-                            if(rel_dot < 0) { b.vx -= 1.3 * rel_dot * nx; b.vy -= 1.3 * rel_dot * ny; }
-                        }
+                for(let k=0; k<2; k++) {
+                    // Aleta H
+                    let ang_h = angulo_h + k * Math.PI;
+                    let fx_h = Math.cos(ang_h)*raio_centro_aleta, fy_h = Math.sin(ang_h)*raio_centro_aleta;
+                    if(Math.hypot(b.x - fx_h, b.y - fy_h) < min_dist_aleta && b.z > z_offset - raio_fisico_aleta*2) {
+                        let nx = (b.x-fx_h)/min_dist_aleta, ny = (b.y-fy_h)/min_dist_aleta;
+                        b.x = fx_h + nx*min_dist_aleta; b.y = fy_h + ny*min_dist_aleta;
+                        let rv_x = b.vx - (-omega_h * fy_h), rv_y = b.vy - (omega_h * fx_h);
+                        let rd = rv_x*nx + rv_y*ny; if(rd < 0) { b.vx -= 1.3*rd*nx; b.vy -= 1.3*rd*ny; }
                     }
-                };
-                checkAleta(angulo_h, z_offset, false); checkAleta(angulo_ah, -z_offset, true); 
+                    // Aleta AH
+                    let ang_ah = angulo_ah + Math.PI/2 + k * Math.PI;
+                    let fx_ah = Math.cos(ang_ah)*raio_centro_aleta, fy_ah = Math.sin(ang_ah)*raio_centro_aleta;
+                    if(Math.hypot(b.x - fx_ah, b.y - fy_ah) < min_dist_aleta && b.z < -z_offset + raio_fisico_aleta*2) {
+                        let nx = (b.x-fx_ah)/min_dist_aleta, ny = (b.y-fy_ah)/min_dist_aleta;
+                        b.x = fx_ah + nx*min_dist_aleta; b.y = fy_ah + ny*min_dist_aleta;
+                        let rv_x = b.vx - (-omega_ah * fy_ah), rv_y = b.vy - (omega_ah * fx_ah);
+                        let rd = rv_x*nx + rv_y*ny; if(rd < 0) { b.vx -= 1.3*rd*nx; b.vy -= 1.3*rd*ny; }
+                    }
+                }
             }
 
             for(let i=0; i<bolas.length; i++) {
@@ -479,20 +608,39 @@
                         let vel_normal = rvx*nx + rvy*ny + rvz*nz;
                         if(vel_normal < 0) {
                             let impulse = -(1 + bounce_borracha) * vel_normal / 2;
-                            let ix = nx * impulse, iy = ny * impulse, iz = nz * impulse;
-                            b1.vx += ix; b1.vy += iy; b1.vz += iz; b2.vx -= ix; b2.vy -= iy; b2.vz -= iz;
+                            b1.vx += nx * impulse; b1.vy += ny * impulse; b1.vz += nz * impulse;
+                            b2.vx -= nx * impulse; b2.vy -= ny * impulse; b2.vz -= nz * impulse;
                         }
                     }
                 }
-                let b = bolas[i]; b.mesh.position.set(b.x, b.y, b.z);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            let dt = clock.getDelta();
+            if (dt > 0.1) dt = 0.1;
+            
+            accumulator += dt;
+            while(accumulator >= physicsStep) {
+                updatePhysics(physicsStep);
+                accumulator -= physicsStep;
+            }
+
+            // Sync Visuals
+            for(let i=0; i<bolas.length; i++) {
+                let b = bolas[i]; if(b.fora_da_cena) continue;
+                b.mesh.position.set(b.x, b.y, b.z);
                 let speed = Math.sqrt(b.vx*b.vx + b.vy*b.vy + b.vz*b.vz);
-                if(speed > 0.1) b.mesh.rotateOnWorldAxis(new THREE.Vector3(-b.vy, b.vx, 0).normalize(), speed * dt * 0.5);
+                if(speed > 0.1) b.mesh.rotateOnWorldAxis(new THREE.Vector3(-b.vy, b.vx, 0).normalize(), speed * physicsStep * 0.5);
             }
 
             rotor_horario.children.forEach((c, index) => { c.position.set(Math.cos(angulo_h + index * Math.PI)*raio_centro_aleta, Math.sin(angulo_h + index * Math.PI)*raio_centro_aleta, z_offset); });
             rotor_anti.children.forEach((c, index) => { c.position.set(Math.cos(angulo_ah + Math.PI/2 + index * Math.PI)*raio_centro_aleta, Math.sin(angulo_ah + Math.PI/2 + index * Math.PI)*raio_centro_aleta, -z_offset); });
+
             renderer.render(scene, camera);
         }
+
 
         // --- ISOLAMENTO DA INTERFACE, TOQUE E ZOOM ---
         let isDragging = false, previousMousePosition = { x: 0, y: 0 };
@@ -533,7 +681,22 @@
         
         window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 
+        // Lógica de Toggle Mobile
+        const uiPanel = document.getElementById('ui-panel');
+        const uiToggleBtn = document.getElementById('ui-toggle-btn');
+        
+        uiToggleBtn.addEventListener('click', () => {
+            uiPanel.classList.toggle('collapsed');
+        });
+
+        // Evento Botão Mobile
+        document.getElementById('btn-sortear-mobile').addEventListener('click', () => {
+             if(!bola_sorteada) { trigger_draw = true; document.getElementById('status-display').innerText = "CAPTURANDO BOLA..."; }
+        });
+
         animate();
+
+
     </script>
 </body>
 </html>
