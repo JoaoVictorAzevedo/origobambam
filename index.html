@@ -67,14 +67,20 @@
         input[type=range] { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; outline: none; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #4facfe; cursor: pointer; box-shadow: 0 0 10px rgba(79, 172, 254, 0.5); border: 2px solid white; }
         
-        input[type=number] { 
+        select, input[type=number] { 
             width: 100%; box-sizing: border-box; padding: 10px 14px; 
             background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); 
             color: white; border-radius: 10px; font-weight: 600; outline: none; transition: 0.3s; font-size: 14px;
+            appearance: none;
         }
-        input[type=number]:focus { border-color: #4facfe; box-shadow: 0 0 10px rgba(79, 172, 254, 0.2); }
+        select { cursor: pointer; }
+        select:focus, input[type=number]:focus { border-color: #4facfe; box-shadow: 0 0 10px rgba(79, 172, 254, 0.2); }
+        select option { background: #0b1218; color: white; }
+        
+        input:disabled, select:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .btn-group { display: flex; flex-direction: column; gap: 10px; }
+
         .btn-group-row { display: flex; gap: 10px; }
         
         .btn { 
@@ -280,9 +286,21 @@
         <h1>Máquina de Sorteio 3D</h1>
         
         <div class="control-group">
+            <label><span>Modo de Jogo</span></label>
+            <select id="select-preset">
+                <option value="livre">Modo Livre (Personalizado)</option>
+                <option value="megasena">Mega-Sena (60 Bolas, Sorteio de 6)</option>
+                <option value="lotofacil">Lotofácil (25 Bolas, Sorteio de 15)</option>
+                <option value="quina">Quina (80 Bolas, Sorteio de 5)</option>
+                <option value="lotomania">Lotomania (100 Bolas, Sorteio de 20)</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
             <label><span>Bolas no Tambor</span></label>
             <input type="number" id="input-qtd" min="5" max="500" value="60" placeholder="Ex: 60">
         </div>
+
 
         <div class="control-group">
             <label><span>RPM do Motor</span> <span id="val-motor">70</span></label>
@@ -361,11 +379,24 @@
         const raioTamborQuadrado = Math.pow(raio_tambor - raio_bola, 2);
 
         const gravity = -24.0;
-        const forca_sopro = 17.0; 
+        let forca_sopro_atual = 17.0; 
         const bounce_acrilico = 0.65;
         const bounce_borracha = 0.85;
 
         let comportas_abertas = false, trigger_draw = false, bola_sorteada = null, bolas = [];
+        let limites_sorteios = 999;
+        let bolas_sorteadas_count = 0;
+        let is_auto_mode = false;
+        let autoDrawTimeout = null;
+
+        function performDraw() {
+            if(!bola_sorteada && bolas_sorteadas_count < limites_sorteios) {
+                trigger_draw = true; 
+                document.getElementById('status-display').innerText = `CAPTURANDO ${bolas_sorteadas_count + 1}ª BOLA...`;
+            }
+        }
+
+
         
         const cores = {
             1: 0xdc143c, 2: 0xffd700, 3: 0x228b22, 4: 0x8b4513, 5: 0x1e90ff,
@@ -434,7 +465,9 @@
 
 
         function gerarBolas() {
+            clearTimeout(autoDrawTimeout);
             bolas.forEach(b => {
+
                 b.mesh.material.map.dispose(); b.mesh.material.dispose(); scene.remove(b.mesh);
             });
             bolas.length = 0;
@@ -446,6 +479,8 @@
             document.getElementById('btn-sortear').disabled = true;
             document.getElementById('btn-sortear-mobile').disabled = true;
             document.getElementById('status-display').innerText = "SISTEMA PRONTO";
+            bolas_sorteadas_count = 0;
+
 
 
             let alturas_colunas = new Array(10).fill(0);
@@ -481,18 +516,54 @@
         document.getElementById('btn-abrir').addEventListener('click', () => {
             comportas_abertas = true;
             document.getElementById('btn-abrir').disabled = true;
-            document.getElementById('btn-sortear').disabled = false;
-            document.getElementById('btn-sortear-mobile').disabled = false;
-            document.getElementById('status-display').innerText = "MISTURANDO...";
-
+            if(!is_auto_mode) {
+                document.getElementById('btn-sortear').disabled = false;
+                document.getElementById('btn-sortear-mobile').disabled = false;
+                document.getElementById('status-display').innerText = "MISTURANDO...";
+            } else {
+                document.getElementById('status-display').innerText = "MISTURANDO (MODO AUTOMÁTICO)...";
+                autoDrawTimeout = setTimeout(performDraw, 4000); // 4 segundos de mistura inicial
+            }
         });
         
         document.getElementById('btn-sortear').addEventListener('click', () => {
-            if(!bola_sorteada) { trigger_draw = true; document.getElementById('status-display').innerText = "CAPTURANDO BOLA..."; }
+            if(!is_auto_mode) performDraw();
         });
+
 
         // Botão de Reset
         document.getElementById('btn-reset').addEventListener('click', gerarBolas);
+        
+        const PRESETS = {
+            'livre': { bolas: 60, rpm: 70, sopro: 17.0, sorteios: 999, auto: false },
+            'megasena': { bolas: 60, rpm: 180, sopro: 0, sorteios: 6, auto: true },
+            'lotofacil': { bolas: 25, rpm: 185, sopro: 0, sorteios: 15, auto: true },
+            'quina': { bolas: 80, rpm: 190, sopro: 0, sorteios: 5, auto: true },
+            'lotomania': { bolas: 100, rpm: 200, sopro: 0, sorteios: 20, auto: true }
+        };
+
+
+        document.getElementById('select-preset').addEventListener('change', (e) => {
+            const config = PRESETS[e.target.value];
+            if(e.target.value !== 'livre') {
+                document.getElementById('input-qtd').value = config.bolas;
+                document.getElementById('input-qtd').disabled = true;
+                document.getElementById('slider-motor').value = config.rpm;
+                document.getElementById('slider-motor').disabled = true;
+            } else {
+                document.getElementById('input-qtd').disabled = false;
+                document.getElementById('slider-motor').disabled = false;
+            }
+            NUM_BOLAS = config.bolas;
+            velocidade_base = config.rpm;
+            document.getElementById('val-motor').innerText = velocidade_base;
+            forca_sopro_atual = config.sopro;
+            limites_sorteios = config.sorteios;
+            is_auto_mode = config.auto;
+            gerarBolas();
+
+        });
+
 
         // --- MOTOR E LÓGICA DE FÍSICA ---
         let angulo_h = 0, angulo_ah = 0;
@@ -530,8 +601,23 @@
                     
                     if(b.y < -12) {
                         b.fora_da_cena = true; scene.remove(b.mesh); bola_sorteada = null; 
-                        adicionarBolaBarraVisual(b.number); document.getElementById('status-display').innerText = "SORTEIO EM CURSO";
+                        adicionarBolaBarraVisual(b.number); 
+                        bolas_sorteadas_count++;
+                        if(bolas_sorteadas_count < limites_sorteios) {
+                            if(is_auto_mode) {
+                                document.getElementById('status-display').innerText = `AGUARDANDO... (${bolas_sorteadas_count + 1}ª BOLA EM 5s)`;
+                                autoDrawTimeout = setTimeout(performDraw, 5000);
+                            } else {
+                                document.getElementById('status-display').innerText = "SISTEMA PRONTO";
+                                document.getElementById('btn-sortear').disabled = false;
+                                document.getElementById('btn-sortear-mobile').disabled = false;
+                            }
+                        } else {
+                            document.getElementById('status-display').innerText = "SORTEIO CONCLUÍDO";
+                        }
                     }
+
+
                     continue;
                 }
 
@@ -544,9 +630,10 @@
                     continue;
                 }
 
-                b.vy += forca_sopro * dt;
+                b.vy += forca_sopro_atual * dt;
                 b.vx += (Math.random() - 0.5) * 8.0 * dt; b.vz += (Math.random() - 0.5) * 8.0 * dt;
                 b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt;
+
                 
                 let limite_z = profundidade/2 - raio_bola;
                 if(b.z > limite_z) { b.z = limite_z; if(b.vz > 0) b.vz *= -bounce_acrilico; }
@@ -691,8 +778,9 @@
 
         // Evento Botão Mobile
         document.getElementById('btn-sortear-mobile').addEventListener('click', () => {
-             if(!bola_sorteada) { trigger_draw = true; document.getElementById('status-display').innerText = "CAPTURANDO BOLA..."; }
+             if(!bola_sorteada && bolas_sorteadas_count < limites_sorteios) { trigger_draw = true; document.getElementById('status-display').innerText = "CAPTURANDO BOLA..."; }
         });
+
 
         animate();
 
