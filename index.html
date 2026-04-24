@@ -147,12 +147,12 @@
         }
         .logo-site {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 150px; /* Ajuste o tamanho conforme necessário */
-            opacity: 0.8; /* Um pouco transparente para não gritar na tela */
-            z-index: 10; /* Garante que fique sobre o canvas 3D */
-            pointer-events: none; /* Impede que cliques na logo interfiram no simulador */
+            top: 70px; /* Deixa espaço para o anúncio do topo no mobile */
+            left: 20px;
+            width: 140px; /* Tamanho discreto para não brigar com o painel */
+            opacity: 0.9;
+            z-index: 100; /* Garante que fique acima de tudo, inclusive do painel e anúncios */
+            pointer-events: none; /* Crucial: cliques na logo passam direto para o simulador */
         }
         
     </style>
