@@ -1,22 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <section style="display:none;" aria-hidden="true">
-    <h2>Como funciona o nosso Simulador de Sorteio 3D?</h2>
-    <p>
-        Diferente de geradores de números aleatórios comuns baseados em scripts simples, nosso simulador utiliza a biblioteca <strong>Three.js</strong> para renderizar um ambiente físico com gravidade, colisões e atrito.
-        Ideal para apostadores da <strong>Mega-Sena, Lotomania, Quina e Lotofácil</strong> que buscam palpites baseados em entropia real. 
-        O motor contrarrotativo a 500 RPM garante que as esferas de borracha sejam misturadas de forma homogênea dentro do globo de acrílico antes do sorteio.
-    </p>
-    </section>
-    
-    <section style="display:none;">
-        <h1>Simulador de Sorteio 3D Online</h1>
-        <p>Este software utiliza a biblioteca Three.js para simular a física real de um globo lotérico. Diferente de geradores pseudo-aleatórios, aqui as bolas sofrem colisões reais, gravidade e vento dinâmico (sopro), garantindo uma simulação de entropia fiel às máquinas da Loteria Federal.</p>
-        <h2>Como gerar palpites para Mega-Sena?</h2>
-        <p>Configure a quantidade para 60 bolas e utilize o motor em 500 RPM para garantir a mistura total antes de acionar o alçapão.</p>
-    </section>
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
@@ -45,12 +29,14 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <style>
-        /* Interface Moderna "Glassmorphism" */
-        body { margin: 0; overflow: hidden; background-color: #0b0c10; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, sans-serif; color: white; user-select: none; touch-action: none; }
-        #canvas-container { width: 100vw; height: 100vh; position: absolute; z-index: 1; }
+        /* Interface Moderna "Glassmorphism" com Rolagem Liberada */
+        body { margin: 0; overflow-x: hidden; overflow-y: auto; background-color: #0b0c10; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, sans-serif; color: white; user-select: none; touch-action: pan-y; }
+        
+        /* FIXO: O simulador não sobe quando rolar a tela */
+        #canvas-container { width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; z-index: 1; }
         
         #ui-panel { 
-            position: absolute; top: 180px; left: 40px; width: 320px; 
+            position: fixed; top: 180px; left: 40px; width: 320px; 
             background: rgba(15, 18, 25, 0.75); 
             border: 1px solid rgba(255, 255, 255, 0.08); 
             border-radius: 20px; padding: 24px; z-index: 10; 
@@ -85,7 +71,6 @@
         input:disabled, select:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .btn-group { display: flex; flex-direction: column; gap: 10px; }
-
         .btn-group-row { display: flex; gap: 10px; }
         
         .btn { 
@@ -103,7 +88,7 @@
         .status-text { font-size: 11px; color: #4facfe; font-family: 'JetBrains Mono', monospace; margin-top: 20px; text-align: center; font-weight: bold; letter-spacing: 1px; opacity: 0.8; }
         
         #barra-sorteadas {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             display: flex; gap: 12px; z-index: 20; padding: 15px 30px;
             background: rgba(15, 20, 25, 0.8); border-radius: 60px; backdrop-filter: blur(15px);
             border: 1px solid rgba(255,255,255,0.1); min-height: 50px; min-width: 120px;
@@ -130,32 +115,27 @@
         }
         .ad-container:hover { background: rgba(0, 0, 0, 0.3); border-color: rgba(255, 255, 255, 0.1); }
         
-        .ad-slot-top { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 728px; height: 90px; }
+        .ad-slot-top { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); width: 728px; height: 90px; }
         .ad-slot-sidebar { width: 100%; min-height: 250px; margin-top: 20px; flex-shrink: 0; }
         .ad-slot-right-wrapper { 
-            position: absolute; top: 40px; right: 40px; z-index: 10; 
+            position: fixed; top: 40px; right: 40px; z-index: 10; 
             display: flex; flex-direction: column; align-items: flex-end; gap: 20px; 
             max-height: calc(100vh - 80px);
         }
         .ad-slot-right { width: 300px; height: 600px; flex-shrink: 0; }
         #instructions { font-size: 10px; color: #666; text-align: right; pointer-events: none; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 10px; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05);}
 
-
         /* ========================================== */
-        /* OTIMIZAÇÃO MOBILE (SMARTPHONES E TABLETS)  */
+        /* OTIMIZAÇÃO MOBILE E SEO                    */
         /* ========================================== */
         #ui-toggle-btn { display: none; }
         #btn-sortear-mobile { display: none; }
         .mobile-header { display: none; }
 
-
-
         @media (max-width: 850px) {
-            /* Anúncios Mobile */
             .ad-slot-right-wrapper, .ad-slot-sidebar { display: none; }
             .ad-slot-top { top: 0; width: 100vw; height: 50px; border-radius: 0; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
             
-            /* Interface Mobile Premium (Colapsável) */
             #ui-panel {
                 top: 70px; left: 50%;
                 transform: translateX(-50%) translateY(20px);
@@ -165,113 +145,64 @@
                 z-index: 200;
             }
             
-            #ui-panel.collapsed {
-                transform: translateX(-50%) translateY(-500px);
-                opacity: 0;
-                pointer-events: none;
-            }
+            #ui-panel.collapsed { transform: translateX(-50%) translateY(-500px); opacity: 0; pointer-events: none; }
 
-            /* Botão de Toggle Mobile (Agora na parte de baixo) */
             #ui-toggle-btn {
-                display: flex;
-                position: absolute;
-                bottom: 145px;
-                left: 50%;
-                transform: translateX(-50%);
-                z-index: 100;
-                background: rgba(255, 255, 255, 0.05);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                color: rgba(255, 255, 255, 0.7);
-                padding: 10px 20px;
-                border-radius: 50px;
-                font-size: 13px;
-                font-weight: bold;
-                align-items: center;
-                gap: 8px;
-                cursor: pointer;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                display: flex; position: fixed; bottom: 145px; left: 50%; transform: translateX(-50%);
+                z-index: 100; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.7);
+                padding: 10px 20px; border-radius: 50px; font-size: 13px; font-weight: bold;
+                align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             }
             
             #ui-panel:not(.collapsed) ~ #ui-toggle-btn {
-                bottom: unset;
-                top: 80px;
-                right: 20px;
-                left: unset;
-                transform: none;
-                background: rgba(255, 0, 0, 0.2);
-                border-color: rgba(255, 0, 0, 0.3);
-                color: white;
-                padding: 8px;
+                bottom: unset; top: 80px; right: 20px; left: unset; transform: none;
+                background: rgba(255, 0, 0, 0.2); border-color: rgba(255, 0, 0, 0.3); color: white; padding: 8px;
             }
             
             #ui-panel:not(.collapsed) ~ #ui-toggle-btn span:first-child { display: none; }
             #ui-panel:not(.collapsed) ~ #ui-toggle-btn .arrow { transform: rotate(180deg); font-size: 16px; margin: 0; }
 
-
             h1 { margin-bottom: 10px; font-size: 14px; }
             .control-group { margin-bottom: 10px; }
-            
-            /* Barras Inferiores */
             #barra-sorteadas { bottom: 10px; padding: 8px 15px; gap: 6px; }
             .bola-ui { width: 32px; height: 32px; font-size: 14px; }
 
-            /* Botão Puxar Mobile */
             #btn-sortear-mobile {
-                display: block;
-                position: absolute;
-                bottom: 80px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 90vw;
-                max-width: 350px;
-                z-index: 90;
-                padding: 16px;
-                border-radius: 12px;
-                font-size: 16px;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+                display: block; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+                width: 90vw; max-width: 350px; z-index: 90; padding: 16px; border-radius: 12px;
+                font-size: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
             }
-
-            #ui-panel:not(.collapsed) ~ #btn-sortear-mobile {
-                display: none; /* Esconde para não poluir quando o menu está aberto */
-            }
-
+            #ui-panel:not(.collapsed) ~ #btn-sortear-mobile { display: none; }
             
-            /* Logo e Header no Mobile */
             .mobile-header {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                position: absolute;
-                top: 0; left: 0; width: 100%;
-                height: 55px;
-                background-color: #0b1c2e; /* Azul Marinho */
-                border-bottom: 2px solid #d4af37; /* Fita Dourada */
-                box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-                z-index: 500;
+                display: flex; justify-content: center; align-items: center; position: fixed;
+                top: 0; left: 0; width: 100%; height: 55px; background-color: #0b1c2e; 
+                border-bottom: 2px solid #d4af37; box-shadow: 0 4px 12px rgba(0,0,0,0.6); z-index: 500;
             }
             .mobile-header img { height: 35px; width: auto; object-fit: contain; }
             .logo-site { display: none; }
             .ad-slot-top { top: 55px; height: 50px; border-bottom: 1px solid rgba(255,255,255,0.05); }
             #ui-panel { top: 110px; }
-
-
             #instructions { display: none; }
         }
         
-        .logo-site {
-            position: absolute;
-            top: 40px;
-            left: 40px;
-            width: 160px;
-            opacity: 1;
-            z-index: 100;
-            pointer-events: none;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+        .logo-site { position: fixed; top: 40px; left: 40px; width: 160px; opacity: 1; z-index: 100; pointer-events: none; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); }
+
+        /* ========================================== */
+        /* SESSÃO SEO ADSENSE (RODAPÉ)                */
+        /* ========================================== */
+        #content-section {
+            position: relative; z-index: 5; margin-top: 100vh; /* Empurra o texto para baixo do simulador */
+            background: #0f1219; padding: 60px 20px; border-top: 2px solid #d4af37;
+            user-select: text; font-family: 'Inter', sans-serif;
         }
+        .container { max-width: 900px; margin: 0 auto; line-height: 1.8; color: #ccc; font-size: 16px; }
+        .container h2, .container h1 { color: #fff; border-left: 4px solid #d4af37; padding-left: 15px; margin-top: 40px; font-weight: normal; }
+        .footer-links { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #333; }
+        .footer-links a { color: #d4af37; text-decoration: none; margin: 0 15px; font-size: 14px; transition: 0.2s; }
+        .footer-links a:hover { color: #fff; }
 
-
-        
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -281,13 +212,11 @@
     </div>
     <img src="logo-transparente.png" class="logo-site" alt="Sorteio 3D">
 
-    
     <div class="ad-container ad-slot-top">
         Banner Topo (Desktop: 728x90 | Mobile: 320x50)
     </div>
 
     <div id="ui-panel" class="collapsed">
-
         <h1>Máquina de Sorteio 3D</h1>
         
         <div class="control-group">
@@ -305,7 +234,6 @@
             <label><span>Bolas no Tambor</span></label>
             <input type="number" id="input-qtd" min="5" max="500" value="60" placeholder="Ex: 60">
         </div>
-
 
         <div class="control-group">
             <label><span>RPM do Motor</span> <span id="val-motor">70</span></label>
@@ -333,19 +261,78 @@
         </div>
         <div id="instructions">
             Clique e Arraste: Girar Câmera<br>
-            Scroll: Zoom (Limitado)
+            Ctrl + Scroll: Zoom
         </div>
+    </div>
+
+    <!-- BOTÃO WHATSAPP (Fica oculto até o final do sorteio) -->
+    <div id="whatsapp-share-container" style="display: none; position: fixed; bottom: 95px; left: 50%; transform: translateX(-50%); z-index: 50; animation: popIn 0.5s ease forwards;">
+        <a id="btn-whatsapp" href="#" target="_blank" style="background: #25D366; color: white; padding: 12px 24px; border-radius: 30px; text-decoration: none; font-weight: bold; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4); font-size: 14px; font-family: 'Inter', sans-serif;">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.005-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg>
+            Compartilhar Palpite
+        </a>
     </div>
     
     <div id="barra-sorteadas"></div>
     <div id="btn-sortear-mobile" class="btn btn-green">SORTEAR BOLA 🎲</div>
     <div id="ui-toggle-btn">
-
         <span>⚙️ Configure o Sorteio</span>
         <span class="arrow">▶</span>
     </div>
+    
     <div id="canvas-container"></div>
 
+    <!-- CONTEÚDO DE ALTO VALOR PARA O ADSENSE -->
+    <article id="content-section">
+        <div class="container">
+            <h1>Como funciona o Simulador de Sorteio 3D Profissional?</h1>
+            
+            <!-- WIDGET DE RESULTADO OFICIAL (API) -->
+            <div id="latest-results-card" style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 15px; margin: 30px 0; border-left: 4px solid #209869; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: 0.3s;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                    <h3 id="api-title" style="margin: 0; color: #209869; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;">Último Resultado Oficial: Mega-Sena</h3>
+                    
+                    <!-- ABAS PARA MODO LIVRE -->
+                    <div id="api-tabs" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="api-tab active" data-jogo="megasena" style="background: #209869; color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 11px; transition: 0.3s; opacity: 1;">Mega</button>
+                        <button class="api-tab" data-jogo="lotofacil" style="background: #930089; color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 11px; transition: 0.3s; opacity: 0.4;">Lotofácil</button>
+                        <button class="api-tab" data-jogo="quina" style="background: #260085; color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 11px; transition: 0.3s; opacity: 0.4;">Quina</button>
+                        <button class="api-tab" data-jogo="lotomania" style="background: #f78100; color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 11px; transition: 0.3s; opacity: 0.4;">Lotomania</button>
+                    </div>
+                </div>
+                
+                <p id="api-loading" style="color: #888; font-family: monospace;">Estabelecendo conexão com a base de dados...</p>
+                
+                <div id="api-data" style="display: none;">
+                    <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;">
+                        Concurso <strong id="api-concurso" style="color: #fff;"></strong> — Sorteio realizado em <strong id="api-data-sorteio" style="color: #fff;"></strong>
+                    </p>
+                    <div id="api-bolas" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <!-- As bolas serão injetadas aqui -->
+                    </div>
+                </div>
+            </div>
+            <!-- FIM DO WIDGET -->
+
+            <p>Este software foi desenvolvido para oferecer uma alternativa científica aos geradores de números aleatórios convencionais baseados em scripts simples. Utilizamos a biblioteca <strong>Three.js</strong> para renderizar um ambiente físico completo, onde as dezenas são influenciadas por gravidade real, atrito e colisões dinâmicas. Ideal para apostadores da <strong>Mega-Sena, Lotomania, Quina e Lotofácil</strong> que buscam palpites baseados em entropia real.</p>
+            
+            <h2>Física e Entropia no Sorteio da Mega-Sena</h2>
+            <p>Ao configurar a máquina para 60 bolas e acionar o motor a 500 RPM, criamos um sistema de alta entropia. Diferente de um script de sorteio digital comum, aqui o resultado depende da posição inicial das bolas e da força de impacto entre elas, simulando com precisão o comportamento dos globos de acrílico usados pela Loteria Federal.</p>
+            
+            <h2>Dicas para Gerar seus Palpites</h2>
+            <p>Para obter os melhores resultados, recomendamos manter a mistura por pelo menos 5 segundos antes de liberar o alçapão. O motor contrarrotativo garante que as esferas de borracha sejam misturadas de forma homogênea no tambor, tornando a distribuição das bolas totalmente imprevisível.</p>
+
+            <div class="footer-links">
+                <a href="#">Política de Privacidade</a>
+                <a href="#">Termos de Uso</a>
+                <a href="#">Contato</a>
+            </div>
+            <p style="text-align:center; font-size: 12px; color: #555; margin-top: 20px;">
+                &copy; 2026 João Azevedo - Desenvolvedor & Analista de TI. Ceres/GO.
+            </p>
+        </div>
+    </article>
 
     <script>
         // --- CONFIGURAÇÃO BÁSICA ---
@@ -356,14 +343,13 @@
         // Otimização de Performance: Detectar mobile para reduzir carga
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const renderer = new THREE.WebGLRenderer({ 
-            antialias: !isMobile, // Desabilita anti-alias no mobile para ganhar FPS
+            antialias: !isMobile, 
             alpha: true, 
             powerPreference: "high-performance" 
         });
-        renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5)); // Reduz pixelRatio para performance
+        renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 1.5)); 
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
-
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
@@ -393,6 +379,7 @@
         let bolas_sorteadas_count = 0;
         let is_auto_mode = false;
         let autoDrawTimeout = null;
+        let palpitesSorteados = []; // <--- LISTA PARA O WHATSAPP
 
         function performDraw() {
             if(!bola_sorteada && bolas_sorteadas_count < limites_sorteios) {
@@ -407,8 +394,6 @@
                 document.getElementById('status-display').innerText = `CAPTURANDO ${bolas_sorteadas_count + 1}ª BOLA...`;
             }
         }
-
-
         
         const cores = {
             1: 0xdc143c, 2: 0xffd700, 3: 0x228b22, 4: 0x8b4513, 5: 0x1e90ff,
@@ -472,14 +457,17 @@
             document.getElementById('barra-sorteadas').appendChild(div);
         }
 
-        // Otimização: Reduzindo segmentos da geometria (16 -> 12)
         const geoBola = new THREE.SphereGeometry(raio_bola, 12, 12);
-
 
         function gerarBolas() {
             clearTimeout(autoDrawTimeout);
-            bolas.forEach(b => {
 
+            // RESET PARA WHATSAPP
+            palpitesSorteados = []; 
+            document.getElementById('whatsapp-share-container').style.display = 'none';
+
+
+            bolas.forEach(b => {
                 b.mesh.material.map.dispose(); b.mesh.material.dispose(); scene.remove(b.mesh);
             });
             bolas.length = 0;
@@ -492,8 +480,6 @@
             document.getElementById('btn-sortear-mobile').disabled = false;
             document.getElementById('status-display').innerText = "SISTEMA PRONTO";
             bolas_sorteadas_count = 0;
-
-
 
             let alturas_colunas = new Array(10).fill(0);
             
@@ -534,7 +520,7 @@
                 document.getElementById('status-display').innerText = "MISTURANDO...";
             } else {
                 document.getElementById('status-display').innerText = "MISTURANDO (MODO AUTOMÁTICO)...";
-                autoDrawTimeout = setTimeout(performDraw, 4000); // 4 segundos de mistura inicial
+                autoDrawTimeout = setTimeout(performDraw, 4000); 
             }
         });
         
@@ -542,8 +528,6 @@
             if(!is_auto_mode) performDraw();
         });
 
-
-        // Botão de Reset
         document.getElementById('btn-reset').addEventListener('click', gerarBolas);
         
         const PRESETS = {
@@ -553,7 +537,6 @@
             'quina': { bolas: 80, rpm: 190, sopro: 0, sorteios: 5, auto: true },
             'lotomania': { bolas: 100, rpm: 200, sopro: 0, sorteios: 20, auto: true }
         };
-
 
         document.getElementById('select-preset').addEventListener('change', (e) => {
             const config = PRESETS[e.target.value];
@@ -578,13 +561,15 @@
             is_auto_mode = config.auto;
             gerarBolas();
 
+            // ---> ADICIONE ESTA LINHA AQUI <---
+            // Chama a API para o novo jogo selecionado
+            buscarUltimoResultado(e.target.value);
         });
-
 
         // --- MOTOR E LÓGICA DE FÍSICA ---
         let angulo_h = 0, angulo_ah = 0;
         const clock = new THREE.Clock();
-        const physicsStep = 1/60; // 60Hz para estabilidade
+        const physicsStep = 1/60; 
         let accumulator = 0;
 
         function updatePhysics(dt) {
@@ -619,6 +604,11 @@
                         b.fora_da_cena = true; scene.remove(b.mesh); bola_sorteada = null; 
                         adicionarBolaBarraVisual(b.number); 
                         bolas_sorteadas_count++;
+                        
+                        // 1. Guarda a bola formatada (01, 02...) na lista
+                        let numFormatado = b.number < 10 ? '0' + b.number : b.number.toString();
+                        palpitesSorteados.push(numFormatado);
+
                         if(bolas_sorteadas_count < limites_sorteios) {
                             if(is_auto_mode) {
                                 document.getElementById('status-display').innerText = `AGUARDANDO... (${bolas_sorteadas_count + 1}ª BOLA EM 5s)`;
@@ -630,10 +620,23 @@
                             }
                         } else {
                             document.getElementById('status-display').innerText = "SORTEIO CONCLUÍDO";
+                            
+                            // 2. MÁGICA DO WHATSAPP AQUI
+                            // Ordena a array em ordem crescente numericamente
+                            let jogoOrdenado = palpitesSorteados.sort((a,b) => parseInt(a) - parseInt(b)).join(' - ');
+                            
+                            // Pega o nome do jogo atual (Mega-Sena, Lotofácil, etc)
+                            let seletor = document.getElementById('select-preset');
+                            let nomeJogo = seletor.options[seletor.selectedIndex].text.split('(')[0].trim(); 
+                            
+                            // Monta a mensagem final (o encodeURIComponent garante que emojis e espaços funcionem no link)
+                            let msg = `Gerei meu palpite para ${nomeJogo} usando física real: *${jogoOrdenado}* 🍀\n\nCrie o seu sem algoritmos viciados em: https://sorteio3d.com.br`;
+                            
+                            // Injeta no link e revela o botão
+                            document.getElementById('btn-whatsapp').href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+                            document.getElementById('whatsapp-share-container').style.display = 'block';
                         }
                     }
-
-
                     continue;
                 }
 
@@ -650,7 +653,6 @@
                 b.vx += (Math.random() - 0.5) * 8.0 * dt; b.vz += (Math.random() - 0.5) * 8.0 * dt;
                 b.x += b.vx * dt; b.y += b.vy * dt; b.z += b.vz * dt;
 
-                
                 let limite_z = profundidade/2 - raio_bola;
                 if(b.z > limite_z) { b.z = limite_z; if(b.vz > 0) b.vz *= -bounce_acrilico; }
                 else if(b.z < -limite_z) { b.z = -limite_z; if(b.vz < 0) b.vz *= -bounce_acrilico; }
@@ -675,7 +677,6 @@
 
                 const min_dist_aleta = raio_bola + raio_fisico_aleta;
                 for(let k=0; k<2; k++) {
-                    // Aleta H
                     let ang_h = angulo_h + k * Math.PI;
                     let fx_h = Math.cos(ang_h)*raio_centro_aleta, fy_h = Math.sin(ang_h)*raio_centro_aleta;
                     if(Math.hypot(b.x - fx_h, b.y - fy_h) < min_dist_aleta && b.z > z_offset - raio_fisico_aleta*2) {
@@ -684,7 +685,6 @@
                         let rv_x = b.vx - (-omega_h * fy_h), rv_y = b.vy - (omega_h * fx_h);
                         let rd = rv_x*nx + rv_y*ny; if(rd < 0) { b.vx -= 1.3*rd*nx; b.vy -= 1.3*rd*ny; }
                     }
-                    // Aleta AH
                     let ang_ah = angulo_ah + Math.PI/2 + k * Math.PI;
                     let fx_ah = Math.cos(ang_ah)*raio_centro_aleta, fy_ah = Math.sin(ang_ah)*raio_centro_aleta;
                     if(Math.hypot(b.x - fx_ah, b.y - fy_ah) < min_dist_aleta && b.z < -z_offset + raio_fisico_aleta*2) {
@@ -730,7 +730,6 @@
                 accumulator -= physicsStep;
             }
 
-            // Sync Visuals
             for(let i=0; i<bolas.length; i++) {
                 let b = bolas[i]; if(b.fora_da_cena) continue;
                 b.mesh.position.set(b.x, b.y, b.z);
@@ -744,18 +743,15 @@
             renderer.render(scene, camera);
         }
 
-
-        // --- ISOLAMENTO DA INTERFACE, TOQUE E ZOOM ---
+        // --- ISOLAMENTO DA INTERFACE E TOQUE ---
         let isDragging = false, previousMousePosition = { x: 0, y: 0 };
         
-        // Suporte a Toque (Mobile) e Mouse (Desktop)
         const startDrag = (e) => {
-            if(!e.target.closest('.ad-container') && !e.target.closest('#ui-panel') && !e.target.closest('#barra-sorteadas') && !e.target.closest('#ui-toggle-btn')) { 
+            if(!e.target.closest('.ad-container') && !e.target.closest('#ui-panel') && !e.target.closest('#barra-sorteadas') && !e.target.closest('#ui-toggle-btn') && !e.target.closest('#content-section')) { 
                 isDragging = true; 
                 let evt = e.touches ? e.touches[0] : e;
                 previousMousePosition = { x: evt.clientX, y: evt.clientY }; 
 
-                // UX Mobile: Fechar painel se clicar fora dele
                 const panel = document.getElementById('ui-panel');
                 if (!panel.classList.contains('collapsed')) {
                     panel.classList.add('collapsed');
@@ -774,23 +770,24 @@
 
         document.addEventListener('mousedown', startDrag);
         document.addEventListener('touchstart', startDrag, {passive: false});
-        
         document.addEventListener('mouseup', endDrag);
         document.addEventListener('touchend', endDrag);
-        
         document.addEventListener('mousemove', onDrag);
         document.addEventListener('touchmove', onDrag, {passive: false});
         
         document.addEventListener('wheel', (e) => { 
-            if(!e.target.closest('.ad-container') && !e.target.closest('#ui-panel') && !e.target.closest('#barra-sorteadas')) {
+            if(e.target.closest('.ad-container') || e.target.closest('#ui-panel') || e.target.closest('#barra-sorteadas') || e.target.closest('#content-section')) {
+                return;
+            }
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
                 camera.position.z += e.deltaY * 0.05; 
                 camera.position.z = Math.max(15, Math.min(65, camera.position.z));
             }
-        });
+        }, { passive: false });
         
         window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 
-        // Lógica de Toggle Mobile
         const uiPanel = document.getElementById('ui-panel');
         const uiToggleBtn = document.getElementById('ui-toggle-btn');
         
@@ -798,16 +795,135 @@
             uiPanel.classList.toggle('collapsed');
         });
 
-        // Evento Botão Mobile
         document.getElementById('btn-sortear-mobile').addEventListener('click', () => {
              if(!is_auto_mode) performDraw();
         });
 
-
         animate();
 
+// EVENTO QUE INTEGRA O PAINEL COM A API LÁ EMBAIXO E AS ABAS
+        document.getElementById('select-preset').addEventListener('change', (e) => {
+            const config = PRESETS[e.target.value];
+            const tabsContainer = document.getElementById('api-tabs');
+
+            if(e.target.value !== 'livre') {
+                document.getElementById('input-qtd').value = config.bolas;
+                document.getElementById('input-qtd').disabled = true;
+                document.getElementById('slider-motor').value = config.rpm;
+                document.getElementById('slider-motor').disabled = true;
+                document.getElementById('btn-sortear').style.display = 'none';
+                document.getElementById('btn-sortear-mobile').style.display = 'none';
+                
+                // Esconde as abas se não for modo livre
+                tabsContainer.style.display = 'none';
+                buscarUltimoResultado(e.target.value); 
+            } else {
+                document.getElementById('input-qtd').disabled = false;
+                document.getElementById('slider-motor').disabled = false;
+                document.getElementById('btn-sortear').style.display = '';
+                document.getElementById('btn-sortear-mobile').style.display = '';
+                
+                // Mostra as abas no modo livre e busca o jogo que estiver marcado na aba
+                tabsContainer.style.display = 'flex';
+                const activeTab = document.querySelector('.api-tab.active');
+                buscarUltimoResultado(activeTab.dataset.jogo);
+            }
+            
+            NUM_BOLAS = config.bolas;
+            velocidade_base = config.rpm;
+            document.getElementById('val-motor').innerText = velocidade_base;
+            forca_sopro_atual = config.sopro;
+            limites_sorteios = config.sorteios;
+            is_auto_mode = config.auto;
+            
+            gerarBolas(); 
+        });
+
+        // ==========================================
+        // CONSUMO DE API DINÂMICO: RESULTADOS DA CAIXA
+        // ==========================================
+        async function buscarUltimoResultado(tipoJogo = 'megasena') {
+            // Ignora o 'livre' e usa o que foi passado explicitamente ou cai para a megasena
+            if (tipoJogo === 'livre') return; 
+
+            const configAPI = {
+                'megasena': { nome: 'Mega-Sena', endpoint: 'megasena', cor: '#209869' },
+                'lotofacil': { nome: 'Lotofácil', endpoint: 'lotofacil', cor: '#930089' },
+                'quina': { nome: 'Quina', endpoint: 'quina', cor: '#260085' },
+                'lotomania': { nome: 'Lotomania', endpoint: 'lotomania', cor: '#f78100' }
+            };
+
+            const config = configAPI[tipoJogo];
+
+            document.getElementById('api-title').innerText = `Último Resultado Oficial: ${config.nome}`;
+            document.getElementById('api-title').style.color = config.cor;
+            document.getElementById('latest-results-card').style.borderLeftColor = config.cor;
+            
+            document.getElementById('api-loading').style.display = 'block';
+            document.getElementById('api-data').style.display = 'none';
+            document.getElementById('api-bolas').innerHTML = ''; 
+
+            try {
+                const response = await fetch(`https://loteriascaixa-api.herokuapp.com/api/${config.endpoint}/latest`);
+                if (!response.ok) throw new Error('Erro na resposta da API');
+                
+                const data = await response.json();
+                
+                document.getElementById('api-loading').style.display = 'none';
+                document.getElementById('api-data').style.display = 'block';
+                document.getElementById('api-concurso').innerText = data.concurso;
+                document.getElementById('api-data-sorteio').innerText = data.data;
+                
+                const containerBolas = document.getElementById('api-bolas');
+
+                const dezenasTratadas = [...new Set(data.dezenas)];
+                
+                data.dezenas.forEach(dezena => {
+                    let bola = document.createElement('div');
+                    bola.style.cssText = `width: 45px; height: 45px; background: ${config.cor}; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; box-shadow: inset -3px -3px 8px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.4); border: 2px solid rgba(255,255,255,0.2); transition: 0.3s;`;
+                    bola.innerText = dezena;
+                    containerBolas.appendChild(bola);
+                });
+                
+            } catch (error) {
+                document.getElementById('api-loading').innerText = "Sistema oficial de resultados temporariamente indisponível.";
+                console.warn("Falha ao buscar resultados:", error);
+            }
+        }
+
+        // Lógica de Clique nas Abas
+        document.querySelectorAll('.api-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                // Remove a classe 'active' e apaga a cor de todas as abas
+                document.querySelectorAll('.api-tab').forEach(t => {
+                    t.classList.remove('active');
+                    t.style.opacity = '0.4';
+                });
+                
+                // Acende apenas a aba que foi clicada
+                e.target.classList.add('active');
+                e.target.style.opacity = '1';
+                
+                // Dispara a busca na API com o jogo da aba
+                buscarUltimoResultado(e.target.dataset.jogo);
+            });
+        });
+
+        // Primeiro carregamento da página
+        window.addEventListener('DOMContentLoaded', () => buscarUltimoResultado('megasena'));
 
     </script>
-    <img src="https://hitscounter.dev/api/hit?url=sorteio3d.com.br&label=&icon=at&color=%23ffc107&message=&style=flat&tz=UTC">
+
+    <!-- REGISTRO DO SERVICE WORKER (PWA) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('PWA: Service Worker registrado com sucesso!'))
+                    .catch(err => console.error('PWA: Falha ao registrar Service Worker:', err));
+            });
+        }
+    </script>
+    <img src="https://hitscounter.dev/api/hit?url=sorteio3d.com.br&label=&icon=at&color=%23ffc107&message=&style=flat&tz=UTC" style="display:none;" alt="Hits">
 </body>
 </html>
